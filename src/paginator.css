@@ -1,0 +1,40 @@
+nav.paginator {
+    margin: 16px auto;
+    text-align: center;
+}
+
+nav.paginator a,
+nav.paginator span {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0px 4px;
+    border: solid 1px #ccf;
+    text-align: center;
+    line-height: 30px;
+    font-size: 16px;
+}
+
+nav.paginator span.active,
+nav.paginator span.active:hover {
+    background-color: #e0e0e0cc;
+    font-weight: 500;
+}
+
+nav.paginator a:hover {
+    background-color: #e0e0f0cc;
+}
+
+nav.paginator a,
+nav.paginator span {
+    text-decoration: none;
+    vertical-align: -webkit-baseline-middle;
+}
+
+nav.paginator span.stub,
+nav.paginator span.stub:hover {
+    border: none;
+    font-size: larger;
+    background-color: initial;
+} 
