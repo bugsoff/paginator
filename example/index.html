@@ -8,29 +8,64 @@
     <title>Paginator Example</title>
     <script src="../dst/paginator.js"></script>
     <link rel="stylesheet" href="../src/paginator.css">
+    <style>
+        html, body {
+            height: 100%;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            flex-flow: column;
+            gap: 32px;
+        }
+        div {
+            margin: 16% auto;
+        }
+        ul {
+            list-style: none;
+            color: #555;
+            font-size: 16px;
+            line-height: 28px;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            gap: 48px;
+        }
+        span {
+            font-size: 1.1em;
+            color: #333;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Paginator demo</h1>
-    <script>
-        const start = (new URL(document.location)).searchParams.get('start') ?? 0,
-            arg = {
-                total: 101,
-                per_page: 10,
-                start: start,
-                neighbor_pages: 2,
-            },
-            title = document.createElement("h2")
-            title.innerHTML = `
-                Total items: ${arg.total}<br>
-                Items per page: ${arg.per_page}<br>
-                Neighbor pages: ${arg.neighbor_pages}<br>
-                Page: ${arg.start / arg.per_page + 1}<br>
-                Display items: ${arg.start*1+1} - ${Math.min(Number.parseInt(arg.start) + Number.parseInt(arg.per_page), arg.total)}`
-        
-        document.querySelector("body").append(title)
-        showPagination(arg)
-    </script>
+    <div>
+        <h1>Paginator demo</h1>
+        <h2>Parameters:</h2>
+        <ul></ul>
+        <script>
+            const start = (new URL(document.location)).searchParams.get('start') ?? 0,
+                arg = {
+                    total: 101,
+                    per_page: 10,
+                    start: start,
+                    neighbor_pages: 2,
+                    params: {type: "test"},
+                }
+
+            document.querySelector("ul").innerHTML = `
+                <li>Total items: <span>${arg.total}</span>
+                <li>Items per page: <span>${arg.per_page}<span>
+                <li>Neighbor pages: <span>${arg.neighbor_pages}<span>
+                <li>Current page: <span>${arg.start / arg.per_page + 1}<span>
+                <li>Query string: <span>${Object.keys(arg.params)[0]}=${arg.params.type}<span>
+                <li>Displayed items: <span>${arg.start*1+1} - ${Math.min(Number.parseInt(arg.start) + Number.parseInt(arg.per_page), arg.total)}</span>
+            `
+
+            showPagination(arg)
+        </script>
+    </div>
 </body>
 
 </html>
