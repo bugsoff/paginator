@@ -6,15 +6,19 @@ type parameters = {
     page?          : number,
     neighbor_pages?: number,
     parent         : string,
+    params         : {[index: string]: number | string;},
 }
 
 const GUI = {
-    stub       : `<span class="stub">&hellip;</span>`,
-    paginator  : "nav",
-    class_name : "paginator",
-    parent     : "body",
+    stub: `<span class="stub">&hellip;</span>`,
+    paginator: "nav",
+    class_name: "paginator",
+    parent: "body",
     active_page: (num: number) => `<span class="active">${num}</span>`,
-    page       : (start: number, num: number) => `<a href="?${start ? `start=${start}` : ''}">${num}</a>`,
+    page: (start: number, num: number, url: URL) => {
+        url.searchParams.set("start", `${start}`)
+        return `<a href="${url.href}">${num}</a>`
+    }
 }
 
 const ERROR = {
@@ -28,11 +32,19 @@ function showPagination(arg: parameters) {
         page: 1,
         neighbor_pages: 3,
         parent: GUI.parent,
+        params: {},
     }
     arg = Object.assign({}, defaults, arg)
     let listHTML = "",
         neighbor_items = arg.neighbor_pages! * arg.per_page,
-        last_item = Math.ceil(arg.total / arg.per_page) * arg.per_page - 1
+        last_item = Math.ceil(arg.total / arg.per_page) * arg.per_page - 1,
+        url = new URL(document.location.href)
+    
+    for (let param in arg.params) {
+        url.searchParams.set(param, `${arg.params[param]}`)
+    }
+
+    console.log(url.search);
 
     if (arg.start == undefined) {
         arg.start = arg.page! * arg.per_page
@@ -45,7 +57,7 @@ function showPagination(arg: parameters) {
 
     // first page + stub
     if (arg.start > neighbor_items) {
-        listHTML += makePagelink(0, arg.start, arg.per_page)
+        listHTML += makePagelink(0, arg.start, arg.per_page, url)
         if (arg.start > neighbor_items + arg.per_page) {
             listHTML += GUI.stub
         }
@@ -55,7 +67,7 @@ function showPagination(arg: parameters) {
     const before = Math.max(0, arg.start - neighbor_items),
         after = Math.min(arg.start + neighbor_items, last_item)
     for (let i = before; i <= after; i += arg.per_page) {
-        listHTML += makePagelink(i, arg.start, arg.per_page);
+        listHTML += makePagelink(i, arg.start, arg.per_page, url);
     }
 
     // stub + last page
@@ -63,7 +75,7 @@ function showPagination(arg: parameters) {
         if (arg.start < last_item - neighbor_items - arg.per_page * 2) {
             listHTML += GUI.stub
         }
-        listHTML += makePagelink(last_item - arg.per_page + 1, arg.start, arg.per_page);
+        listHTML += makePagelink(last_item - arg.per_page + 1, arg.start, arg.per_page, url);
     }
 
     // HTML render
@@ -79,7 +91,6 @@ function showPagination(arg: parameters) {
     }
 }
 
-
-const makePagelink = (current: number, start: number, per_page: number) => current == start
+const makePagelink = (current: number, start: number, per_page: number, url: URL) => current == start
     ? GUI.active_page(Math.floor(current / per_page) + 1)
-    : GUI.page(current, Math.floor(current / per_page) + 1)
+    : GUI.page(current, Math.floor(current / per_page) + 1, url)

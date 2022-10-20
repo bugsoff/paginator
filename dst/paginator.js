@@ -5,7 +5,10 @@ const GUI = {
     class_name: "paginator",
     parent: "body",
     active_page: (num) => `<span class="active">${num}</span>`,
-    page: (start, num) => `<a href="?${start ? `start=${start}` : ''}">${num}</a>`,
+    page: (start, num, url) => {
+        url.searchParams.set("start", `${start}`);
+        return `<a href="${url.href}">${num}</a>`;
+    }
 };
 const ERROR = {
     no_parent: "Parent element does not exists!",
@@ -17,9 +20,14 @@ function showPagination(arg) {
         page: 1,
         neighbor_pages: 3,
         parent: GUI.parent,
+        params: {},
     };
     arg = Object.assign({}, defaults, arg);
-    let listHTML = "", neighbor_items = arg.neighbor_pages * arg.per_page, last_item = Math.ceil(arg.total / arg.per_page) * arg.per_page - 1;
+    let listHTML = "", neighbor_items = arg.neighbor_pages * arg.per_page, last_item = Math.ceil(arg.total / arg.per_page) * arg.per_page - 1, url = new URL(document.location.href);
+    for (let param in arg.params) {
+        url.searchParams.set(param, `${arg.params[param]}`);
+    }
+    console.log(url.search);
     if (arg.start == undefined) {
         arg.start = arg.page * arg.per_page;
     }
@@ -31,7 +39,7 @@ function showPagination(arg) {
     }
     // first page + stub
     if (arg.start > neighbor_items) {
-        listHTML += makePagelink(0, arg.start, arg.per_page);
+        listHTML += makePagelink(0, arg.start, arg.per_page, url);
         if (arg.start > neighbor_items + arg.per_page) {
             listHTML += GUI.stub;
         }
@@ -39,14 +47,14 @@ function showPagination(arg) {
     // active page + neighbors
     const before = Math.max(0, arg.start - neighbor_items), after = Math.min(arg.start + neighbor_items, last_item);
     for (let i = before; i <= after; i += arg.per_page) {
-        listHTML += makePagelink(i, arg.start, arg.per_page);
+        listHTML += makePagelink(i, arg.start, arg.per_page, url);
     }
     // stub + last page
     if (arg.start < last_item - neighbor_items - arg.per_page) {
         if (arg.start < last_item - neighbor_items - arg.per_page * 2) {
             listHTML += GUI.stub;
         }
-        listHTML += makePagelink(last_item - arg.per_page + 1, arg.start, arg.per_page);
+        listHTML += makePagelink(last_item - arg.per_page + 1, arg.start, arg.per_page, url);
     }
     // HTML render
     const nav = document.createElement(GUI.paginator);
@@ -60,6 +68,6 @@ function showPagination(arg) {
         console.log(ERROR.no_parent);
     }
 }
-const makePagelink = (current, start, per_page) => current == start
+const makePagelink = (current, start, per_page, url) => current == start
     ? GUI.active_page(Math.floor(current / per_page) + 1)
-    : GUI.page(current, Math.floor(current / per_page) + 1);
+    : GUI.page(current, Math.floor(current / per_page) + 1, url);
